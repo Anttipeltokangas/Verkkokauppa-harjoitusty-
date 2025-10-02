@@ -129,3 +129,18 @@ input, textarea {
   font-size: 2rem;
   margin-bottom: 10px;
 }
+.remove-item {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.remove-item:hover {
+  background: #b91c1c;
+}
+
