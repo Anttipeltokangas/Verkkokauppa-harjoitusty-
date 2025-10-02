@@ -18,7 +18,6 @@ Osa toiminnoista hyödyntää myös LocalStoragea (esimerkiksi suosikit ja ostos
 
 Julkaistu sivusto (GitHub Pages):  
 https://anttipeltokangas.github.io/Verkkokauppa-harjoitusty-/
-
 Julkaisu SeAMKin palvelimella:  
 https://dos.seamk.fi/~epedu+k2302533/  
 
