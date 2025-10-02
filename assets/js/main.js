@@ -32,17 +32,28 @@ $(function () {
         const isFav = favIds.includes(p.id);
         const starColor = isFav ? "gold" : "lightgray";
 
-        container.append(`
+        const html = `
           <div class="product-card">
             <img src="${p.image}" alt="${p.title}">
             <h4>${p.title}</h4>
             <p>${p.category}</p>
             <p><strong>${fmtEUR(p.price)}</strong></p>
-            <button class="add-cart" data-id="${p.id}" data-title="${p.title}" data-price="${p.price}" data-image="${p.image}">Lisää koriin</button>
-            <button class="favorite-btn" aria-label="Suosikki" data-id="${p.id}" style="font-size:20px; border:none; background:transparent; cursor:pointer; color:${starColor}">★</button>
+            <button class="add-cart" 
+                    data-id="${p.id}" 
+                    data-title="${p.title}" 
+                    data-price="${p.price}" 
+                    data-image="${p.image}">
+              Lisää koriin
+            </button>
+            <button class="favorite-btn" 
+                    data-id="${p.id}" 
+                    style="font-size:20px; border:none; background:transparent; cursor:pointer; color:${starColor}">
+              ★
+            </button>
             <div class="added-msg" style="display:none; color:green; font-size:0.9rem; margin-top:5px;">Tuote lisätty koriin ✅</div>
           </div>
-        `);
+        `;
+        container.append(html);
       });
     }
 
@@ -123,13 +134,15 @@ $(function () {
       let total = 0;
       cart.forEach(item => {
         total += item.price * item.quantity;
-        container.append(`
+        const html = `
           <div class="cart">
-            <img src="${item.image}" alt="${item.title}" style="width:60px; height:60px; object-fit:contain; vertical-align:middle; margin-right:10px;">
+            <img src="${item.image}" alt="${item.title}" 
+                 style="width:60px; height:60px; object-fit:contain; vertical-align:middle; margin-right:10px;">
             <strong>${item.title}</strong><br>
             ${item.quantity} kpl × ${fmtEUR(item.price)}
           </div>
-        `);
+        `;
+        container.append(html);
       });
       if (totalEl.length) totalEl.text(fmtEUR(total));
     }
@@ -152,6 +165,7 @@ $(function () {
     });
   }
 });
+
 
 
 
