@@ -38,8 +38,9 @@ $(function () {
             <h4>${p.title}</h4>
             <p>${p.category}</p>
             <p><strong>${fmtEUR(p.price)}</strong></p>
-            <button class="add-cart" data-id="${p.id}" data-title="${p.title}" data-price="${p.price}">Lisää koriin</button>
+            <button class="add-cart" data-id="${p.id}" data-title="${p.title}" data-price="${p.price}" data-image="${p.image}">Lisää koriin</button>
             <button class="favorite-btn" aria-label="Suosikki" data-id="${p.id}" style="font-size:20px; border:none; background:transparent; cursor:pointer; color:${starColor}">★</button>
+            <div class="added-msg" style="display:none; color:green; font-size:0.9rem; margin-top:5px;">Tuote lisätty koriin ✅</div>
           </div>
         `);
       });
@@ -86,13 +87,17 @@ $(function () {
           const id = Number($(this).data("id"));
           const title = String($(this).data("title"));
           const price = Number($(this).data("price"));
+          const image = String($(this).data("image"));
+
           let cart = getCartLS();
           const found = cart.find(i => i.id === id);
           if (found) found.quantity += 1;
-          else cart.push({ id, title, price, quantity: 1 });
+          else cart.push({ id, title, price, image, quantity: 1 });
           setCartLS(cart);
-          $(this).prop("disabled", true);
-          setTimeout(() => $(this).prop("disabled", false), 500);
+
+          const msg = $(this).siblings(".added-msg");
+          msg.fadeIn(200);
+          setTimeout(() => msg.fadeOut(500), 1500);
         });
 
       } catch (e) {
@@ -120,8 +125,9 @@ $(function () {
         total += item.price * item.quantity;
         container.append(`
           <div class="cart">
-            <h4>${item.title}</h4>
-            <p>${item.quantity} kpl × ${fmtEUR(item.price)}</p>
+            <img src="${item.image}" alt="${item.title}" style="width:60px; height:60px; object-fit:contain; vertical-align:middle; margin-right:10px;">
+            <strong>${item.title}</strong><br>
+            ${item.quantity} kpl × ${fmtEUR(item.price)}
           </div>
         `);
       });
@@ -146,5 +152,6 @@ $(function () {
     });
   }
 });
+
 
 
