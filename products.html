@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tuotteet – FakeStore API</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Tuotteet</h1>
+    <nav>
+      <ul class="nav">
+        <li><a href="index.html">Etusivu</a></li>
+        <li><a href="products.html" class="active">Tuotteet</a></li>
+        <li><a href="carts.html">Ostoskorit</a></li>
+        <li><a href="about.html">Tietoa</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Kaikki tuotteet</h2>
+      <input type="text" id="search" placeholder="Etsi tuotteen nimellä...">
+      <button id="showFavorites">Näytä vain suosikit</button>
+      <button id="showAll">Näytä kaikki tuotteet</button>
+      <div id="productContainer" class="product-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Ostoskorit & Tuotteet – Harjoitustyö</p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
