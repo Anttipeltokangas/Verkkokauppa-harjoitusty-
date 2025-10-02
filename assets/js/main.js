@@ -1,13 +1,41 @@
 $(document).ready(function() {
   $("#year").text(new Date().getFullYear());
 
+  // Ostoskorisivu (carts.html)
+  if ($("title").text().includes("Ostoskorit")) {
+    const container = $("#cartContainer");
+    const totalEl = $("#totalPrice");
+
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      container.empty();
+
+      if (cart.length === 0) {
+        container.html("<p>Ostoskori on tyhjä.</p>");
+        totalEl.text("0 €");
+        return;
+      }
+
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.quantity;
+        container.append(`
+          <div class='cart'>
+            <h4>${item.title}</h4>
+            <p>${item.quantity} kpl × ${item.price} €</p>
+          </div>
+        `);
+      });
+
+      totalEl.text(total.toFixed(2) + " €");
+    }
+
+    renderCart();
+  }
+
+  // Tuotesivu (products.html)
   if ($("title").text().includes("Tuotteet")) {
     const container = $("#productContainer");
-    const favKey = "suosikit";
-    const cartKey = "ostoskorini";
-    let suosikit = JSON.parse(localStorage.getItem(favKey) || "[]");
-    let ostoskori = JSON.parse(localStorage.getItem(cartKey) || "[]");
-    let naytaVainSuosikit = false;
 
     async function loadProducts() {
       try {
@@ -19,137 +47,78 @@ $(document).ready(function() {
           const filtered = products.filter(p => p.title.toLowerCase().includes(query));
           render(filtered);
         });
-
-        $("#toggleFavorites").on("click", function() {
-          naytaVainSuosikit = !naytaVainSuosikit;
-          $(this).text(naytaVainSuosikit ? "Näytä kaikki tuotteet" : "Näytä vain suosikit");
-          const visible = naytaVainSuosikit
-            ? products.filter(p => suosikit.includes(p.id))
-            : products;
-          render(visible);
-        });
-      } catch (err) {
-        container.html("<p>Virhe haettaessa tuotteita.</p>");
+      } catch {
+        container.html("<p>Virhe tuotteiden latauksessa.</p>");
       }
-    }
-
-    function näytäIlmoitus(teksti) {
-      const ilmoitus = $("<div class='toast-ilmoitus'></div>").text(teksti);
-      $("body").append(ilmoitus);
-      ilmoitus.fadeIn(300);
-      setTimeout(() => {
-        ilmoitus.fadeOut(500, () => ilmoitus.remove());
-      }, 2000);
     }
 
     function render(products) {
+      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
       container.empty();
-      if (!products.length) {
-        container.html("<p>Ei tuotteita.</p>");
-        return;
-      }
 
       products.forEach(p => {
-        const onSuosikki = suosikit.includes(p.id);
-        const starColor = onSuosikki ? "gold" : "lightgray";
-        const cardClass = onSuosikki ? "product-card suosikki" : "product-card";
+        const isFavorite = favorites.some(f => f.id === p.id);
+        const starColor = isFavorite ? "gold" : "gray";
+
         container.append(`
-          <div class='${cardClass}'>
+          <div class='product-card'>
             <img src='${p.image}' alt='${p.title}'>
             <h4>${p.title}</h4>
             <p>${p.category}</p>
             <p><strong>${p.price} €</strong></p>
-            <button class='fav-btn' data-id='${p.id}' style='color:${starColor};font-size:20px;'>⭐</button>
-            <button class='add-cart-btn' data-id='${p.id}' data-title='${p.title}' data-price='${p.price}' data-image='${p.image}'>🛒 Lisää koriin</button>
+            <button class='add-cart' data-id='${p.id}' data-title='${p.title}' data-price='${p.price}'>Lisää koriin</button>
+            <span class='favorite' data-id='${p.id}' style='cursor:pointer; font-size:22px; color:${starColor}'>★</span>
           </div>
         `);
       });
 
-      $(".fav-btn").off("click").on("click", function() {
-        const id = parseInt($(this).data("id"));
-        if (suosikit.includes(id)) {
-          suosikit = suosikit.filter(x => x !== id);
-        } else {
-          suosikit.push(id);
-        }
-        localStorage.setItem(favKey, JSON.stringify(suosikit));
-        render(products);
+      $(".add-cart").click(function() {
+        const id = $(this).data("id");
+        const title = $(this).data("title");
+        const price = $(this).data("price");
+
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existing = cart.find(item => item.id === id);
+
+        if (existing) existing.quantity++;
+        else cart.push({ id, title, price, quantity: 1 });
+
+        localStorage.setItem("cart", JSON.stringify(cart));
       });
 
-      $(".add-cart-btn").off("click").on("click", function() {
-        const id = parseInt($(this).data("id"));
-        const title = $(this).data("title");
-        const price = parseFloat($(this).data("price"));
-        const image = $(this).data("image");
+      $(".favorite").click(function() {
+        const id = $(this).data("id");
+        const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        const index = favorites.findIndex(f => f.id === id);
 
-        const existing = ostoskori.find(item => item.id === id);
-        if (existing) {
-          existing.quantity += 1;
-        } else {
-          ostoskori.push({ id, title, price, image, quantity: 1 });
+        if (index > -1) favorites.splice(index, 1);
+        else {
+          const product = products.find(p => p.id === id);
+          favorites.push({ id: product.id, title: product.title });
         }
 
-        localStorage.setItem(cartKey, JSON.stringify(ostoskori));
-        näytäIlmoitus(`${title} lisättiin ostoskoriin`);
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        render(products); // Päivitä värit heti
       });
     }
 
     loadProducts();
   }
 
-  if ($("title").text().includes("Ostoskori")) {
-    const container = $("#cartContainer");
-    const totalEl = $("#cartTotal");
-    const cartKey = "ostoskorini";
-    let ostoskori = JSON.parse(localStorage.getItem(cartKey) || "[]");
-
-    function renderCart() {
-      container.empty();
-      if (!ostoskori.length) {
-        container.html("<p>Ostoskorisi on tyhjä.</p>");
-        totalEl.text("");
-        return;
-      }
-
-      let total = 0;
-      ostoskori.forEach(item => {
-        total += item.price * item.quantity;
-        container.append(`
-          <div class='cart'>
-            <img src='${item.image}' alt='${item.title}' style='width:80px;height:80px;object-fit:contain;float:left;margin-right:10px;'>
-            <h4>${item.title}</h4>
-            <p>Määrä: ${item.quantity}</p>
-            <p>Hinta: ${(item.price * item.quantity).toFixed(2)} €</p>
-            <button class='remove-btn' data-id='${item.id}'>Poista</button>
-            <div style='clear:both;'></div>
-          </div>
-        `);
-      });
-
-      totalEl.html(`<h3>Yhteensä: ${total.toFixed(2)} €</h3>`);
-
-      $(".remove-btn").off("click").on("click", function() {
-        const id = parseInt($(this).data("id"));
-        ostoskori = ostoskori.filter(item => item.id !== id);
-        localStorage.setItem(cartKey, JSON.stringify(ostoskori));
-        renderCart();
-      });
-    }
-
-    renderCart();
-  }
-
+  // Tietoa-sivu (about.html)
   if ($("title").text().includes("Tietoa")) {
     $("#contactForm").on("submit", function(e) {
       e.preventDefault();
       const name = $("#name").val().trim();
       const email = $("#email").val().trim();
       const msg = $("#message").val().trim();
+
       if (!name || !email || !msg) {
         $("#formStatus").text("Täytä kaikki kentät.").css("color", "red");
         return;
       }
-      $("#formStatus").text("Kiitos viestistä! (Demo)").css("color", "green");
+
+      $("#formStatus").text("Kiitos viestistä! (Tämä on demo)").css("color", "green");
       this.reset();
     });
   }
