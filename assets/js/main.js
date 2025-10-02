@@ -38,9 +38,7 @@ $(function () {
             <h4>${p.title}</h4>
             <p>${p.category}</p>
             <p><strong>${fmtEUR(p.price)}</strong></p>
-            <button class="add-cart" data-id="${p.id}" data-title="${p.title}" data-price="${p.price}" data-image="${p.image}">
-              Lisää koriin
-            </button>
+            <button class="add-cart" data-id="${p.id}" data-title="${p.title}" data-price="${p.price}" data-image="${p.image}">Lisää koriin</button>
             <button class="favorite-btn" data-id="${p.id}" style="font-size:20px; border:none; background:transparent; cursor:pointer; color:${starColor}">★</button>
             <div class="added-msg" style="display:none; color:green; font-size:0.9rem; margin-top:5px;">Tuote lisätty koriin ✅</div>
           </div>
@@ -116,6 +114,7 @@ $(function () {
     function renderCart() {
       const cart = getCartLS();
       container.empty();
+
       if (cart.length === 0) {
         container.html("<p>Ostoskori on tyhjä.</p>");
         if (totalEl.length) totalEl.text(fmtEUR(0));
@@ -125,16 +124,17 @@ $(function () {
       let total = 0;
       cart.forEach(item => {
         total += item.price * item.quantity;
-
         container.append(`
-          <div class="cart">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${item.image}" alt="${item.title}" style="width:60px; height:60px; object-fit:contain;">
-              <div>
-                <strong>${item.title}</strong><br>
-                ${item.quantity} kpl × ${fmtEUR(item.price)}
+          <div class="cart" data-id="${item.id}">
+            <div style="display:flex; align-items:center; gap:10px; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <img src="${item.image}" alt="${item.title}" style="width:60px; height:60px; object-fit:contain;">
+                <div>
+                  <strong>${item.title}</strong><br>
+                  ${item.quantity} kpl × ${fmtEUR(item.price)}
+                </div>
               </div>
-              <button class="remove-item" data-id="${item.id}" style="margin-left:auto;">Poista</button>
+              <button class="remove-item" data-id="${item.id}">Poista</button>
             </div>
           </div>
         `);
@@ -143,15 +143,15 @@ $(function () {
       if (totalEl.length) totalEl.text(fmtEUR(total));
     }
 
+    renderCart();
+
     container.on("click", ".remove-item", function () {
       const id = Number($(this).data("id"));
       let cart = getCartLS();
-      cart = cart.filter(i => i.id !== id);
+      cart = cart.filter(item => item.id !== id);
       setCartLS(cart);
       renderCart();
     });
-
-    renderCart();
   }
 
   if ($("#contactForm").length) {
