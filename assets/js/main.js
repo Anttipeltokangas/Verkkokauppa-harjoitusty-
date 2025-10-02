@@ -1,141 +1,149 @@
-$(document).ready(function() {
+$(function () {
   $("#year").text(new Date().getFullYear());
 
-  // Ostoskorisivu (carts.html)
-  if ($("title").text().includes("Ostoskorit")) {
+  function fmtEUR(n) {
+    return new Intl.NumberFormat("fi-FI", { style: "currency", currency: "EUR" }).format(n);
+  }
+
+  function getFavorites() {
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+  }
+  function setFavorites(arr) {
+    localStorage.setItem("favorites", JSON.stringify(arr));
+  }
+
+  function getCartLS() {
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+  }
+  function setCartLS(arr) {
+    localStorage.setItem("cart", JSON.stringify(arr));
+  }
+
+  if ($("#productContainer").length) {
+    const container = $("#productContainer");
+    let allProducts = [];
+
+    function render(list) {
+      const favs = getFavorites();
+      const favIds = favs.map(f => f.id);
+      container.empty();
+
+      list.forEach(p => {
+        const isFav = favIds.includes(p.id);
+        const starColor = isFav ? "gold" : "lightgray";
+
+        container.append(`
+          <div class="product-card">
+            <img src="${p.image}" alt="${p.title}">
+            <h4>${p.title}</h4>
+            <p>${p.category}</p>
+            <p><strong>${fmtEUR(p.price)}</strong></p>
+            <button class="add-cart" data-id="${p.id}" data-title="${p.title}" data-price="${p.price}">Lisää koriin</button>
+            <button class="favorite-btn" aria-label="Suosikki" data-id="${p.id}" style="font-size:20px; border:none; background:transparent; cursor:pointer; color:${starColor}">★</button>
+          </div>
+        `);
+      });
+    }
+
+    async function load() {
+      try {
+        allProducts = await getAllProducts();
+        render(allProducts);
+
+        $("#search").on("input", function () {
+          const q = $(this).val().toLowerCase();
+          const filtered = allProducts.filter(p => p.title.toLowerCase().includes(q));
+          render(filtered);
+        });
+
+        $("#showFavorites").on("click", function () {
+          const favIds = getFavorites().map(f => f.id);
+          const onlyFavs = allProducts.filter(p => favIds.includes(p.id));
+          render(onlyFavs);
+        });
+
+        $("#showAll").on("click", function () {
+          render(allProducts);
+        });
+
+        container.on("click", ".favorite-btn", function () {
+          const id = Number($(this).data("id"));
+          let favs = getFavorites();
+          const i = favs.findIndex(f => f.id === id);
+          if (i >= 0) {
+            favs.splice(i, 1);
+          } else {
+            const prod = allProducts.find(p => p.id === id);
+            if (prod) favs.push({ id: prod.id, title: prod.title });
+          }
+          setFavorites(favs);
+          const q = $("#search").val()?.toLowerCase() || "";
+          const current = q ? allProducts.filter(p => p.title.toLowerCase().includes(q)) : allProducts;
+          render(current);
+        });
+
+        container.on("click", ".add-cart", function () {
+          const id = Number($(this).data("id"));
+          const title = String($(this).data("title"));
+          const price = Number($(this).data("price"));
+          let cart = getCartLS();
+          const found = cart.find(i => i.id === id);
+          if (found) found.quantity += 1;
+          else cart.push({ id, title, price, quantity: 1 });
+          setCartLS(cart);
+          $(this).prop("disabled", true);
+          setTimeout(() => $(this).prop("disabled", false), 500);
+        });
+
+      } catch (e) {
+        container.html("<p>Virhe tuotteiden latauksessa.</p>");
+      }
+    }
+
+    load();
+  }
+
+  if ($("#cartContainer").length) {
     const container = $("#cartContainer");
     const totalEl = $("#totalPrice");
 
     function renderCart() {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const cart = getCartLS();
       container.empty();
-
       if (cart.length === 0) {
         container.html("<p>Ostoskori on tyhjä.</p>");
-        totalEl.text("0 €");
+        if (totalEl.length) totalEl.text(fmtEUR(0));
         return;
       }
-
       let total = 0;
       cart.forEach(item => {
         total += item.price * item.quantity;
         container.append(`
-          <div class='cart'>
+          <div class="cart">
             <h4>${item.title}</h4>
-            <p>${item.quantity} kpl × ${item.price} €</p>
+            <p>${item.quantity} kpl × ${fmtEUR(item.price)}</p>
           </div>
         `);
       });
-
-      totalEl.text(total.toFixed(2) + " €");
+      if (totalEl.length) totalEl.text(fmtEUR(total));
     }
 
     renderCart();
   }
 
-  // Tuotesivu (products.html)
-  if ($("title").text().includes("Tuotteet")) {
-    const container = $("#productContainer");
-
-    async function loadProducts() {
-      try {
-        const products = await getAllProducts();
-        render(products);
-
-        $("#search").on("input", function() {
-          const query = $(this).val().toLowerCase();
-          const filtered = products.filter(p => p.title.toLowerCase().includes(query));
-          render(filtered);
-        });
-
-        $("#showFavorites").click(function() {
-          const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-          const favoriteIds = favorites.map(f => f.id);
-          const filtered = products.filter(p => favoriteIds.includes(p.id));
-          render(filtered);
-        });
-
-        $("#showAll").click(function() {
-          render(products);
-        });
-      } catch (err) {
-        container.html("<p>Virhe haettaessa tuotteita.</p>");
-      }
-    }
-
-    function render(products) {
-      container.empty();
-      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      const favoriteIds = favorites.map(f => f.id);
-
-      products.forEach(p => {
-        const isFavorite = favoriteIds.includes(p.id);
-        const starColor = isFavorite ? "gold" : "lightgray";
-
-        container.append(`
-          <div class='product-card'>
-            <img src='${p.image}' alt='${p.title}'>
-            <h4>${p.title}</h4>
-            <p>${p.category}</p>
-            <p><strong>${p.price} €</strong></p>
-            <button class='add-cart' data-id='${p.id}' data-title='${p.title}' data-price='${p.price}'>Lisää koriin</button>
-            <button class='favorite-btn' data-id='${p.id}' style='color:${starColor}; font-size:20px;'>★</button>
-          </div>
-        `);
-      });
-
-      $(".add-cart").click(function() {
-        const id = $(this).data("id");
-        const title = $(this).data("title");
-        const price = $(this).data("price");
-
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const existing = cart.find(item => item.id === id);
-
-        if (existing) {
-          existing.quantity++;
-        } else {
-          cart.push({ id, title, price, quantity: 1 });
-        }
-
-        localStorage.setItem("cart", JSON.stringify(cart));
-      });
-
-      $(".favorite-btn").click(function() {
-        const id = parseInt($(this).data("id"));
-        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-        const exists = favorites.some(f => f.id === id);
-
-        if (exists) {
-          favorites = favorites.filter(f => f.id !== id);
-        } else {
-          const product = products.find(p => p.id === id);
-          if (product) favorites.push({ id: product.id, title: product.title });
-        }
-
-        localStorage.setItem("favorites", JSON.stringify(favorites));
-        render(products);
-      });
-    }
-
-    loadProducts();
-  }
-
-  // Tietoa-sivu (about.html)
-  if ($("title").text().includes("Tietoa")) {
-    $("#contactForm").on("submit", function(e) {
+  if ($("#contactForm").length) {
+    $("#contactForm").on("submit", function (e) {
       e.preventDefault();
       const name = $("#name").val().trim();
       const email = $("#email").val().trim();
       const msg = $("#message").val().trim();
-
       if (!name || !email || !msg) {
         $("#formStatus").text("Täytä kaikki kentät.").css("color", "red");
         return;
       }
-
-      $("#formStatus").text("Kiitos viestistä! (Tämä on demo)").css("color", "green");
+      $("#formStatus").text("Kiitos viestistä! (Demo)").css("color", "green");
       this.reset();
     });
   }
 });
+
