@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oma ostoskori</title>
+  <title>Ostoskorit – Ostoskorit & Tuotteet</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <header>
-    <h1>Oma ostoskori</h1>
+    <h1>Ostoskorit</h1>
     <nav>
       <ul class="nav">
         <li><a href="index.html">Etusivu</a></li>
         <li><a href="products.html">Tuotteet</a></li>
-        <li><a href="carts.html" class="active">Ostoskori</a></li>
+        <li><a href="carts.html" class="active">Ostoskorit</a></li>
         <li><a href="about.html">Tietoa</a></li>
       </ul>
     </nav>
@@ -21,9 +21,17 @@
 
   <main>
     <section>
-      <h2>Ostoskorin sisältö</h2>
+      <h2>Ostoskorien tarkastelu</h2>
+      <p>Tällä sivulla voit hakea yhden tai useamman ostoskorin ja nähdä, mitä tuotteita ne sisältävät. Tiedot haetaan FakeStore API:sta.</p>
+
+      <div>
+        <button id="btnSingle">Hae ostoskori #1</button>
+        <button id="btnAll">Hae kaikki ostoskorit</button>
+      </div>
+
+      <div id="loading" style="display:none">Ladataan tietoja...</div>
+      <div id="error" class="error"></div>
       <div id="cartContainer"></div>
-      <div id="cartTotal"></div>
     </section>
   </main>
 
@@ -32,51 +40,7 @@
   </footer>
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script>
-    $(document).ready(function() {
-      $("#year").text(new Date().getFullYear());
-
-      const container = $("#cartContainer");
-      const totalEl = $("#cartTotal");
-      const cartKey = "ostoskorini";
-      let ostoskori = JSON.parse(localStorage.getItem(cartKey) || "[]");
-
-      function renderCart() {
-        container.empty();
-        if (!ostoskori.length) {
-          container.html("<p>Ostoskorisi on tyhjä.</p>");
-          totalEl.text("");
-          return;
-        }
-
-        let total = 0;
-        ostoskori.forEach(item => {
-          total += item.price * item.quantity;
-          container.append(`
-            <div class='cart'>
-              <img src='${item.image}' alt='${item.title}' style='width:80px;height:80px;object-fit:contain;float:left;margin-right:10px;'>
-              <h4>${item.title}</h4>
-              <p>Määrä: ${item.quantity}</p>
-              <p>Hinta: ${(item.price * item.quantity).toFixed(2)} €</p>
-              <button class='remove-btn' data-id='${item.id}'>Poista</button>
-              <div style='clear:both;'></div>
-            </div>
-          `);
-        });
-
-        totalEl.html(`<h3>Yhteensä: ${total.toFixed(2)} €</h3>`);
-
-        $(".remove-btn").off("click").on("click", function() {
-          const id = parseInt($(this).data("id"));
-          ostoskori = ostoskori.filter(item => item.id !== id);
-          localStorage.setItem(cartKey, JSON.stringify(ostoskori));
-          renderCart();
-        });
-      }
-
-      renderCart();
-    });
-  </script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/main.js"></script>
 </body>
 </html>
-

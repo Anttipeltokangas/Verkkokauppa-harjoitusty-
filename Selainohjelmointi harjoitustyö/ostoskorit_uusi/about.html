@@ -13,6 +13,7 @@
       <ul class="nav">
         <li><a href="index.html">Etusivu</a></li>
         <li><a href="products.html">Tuotteet</a></li>
+        <li><a href="carts.html">Ostoskorit</a></li>
         <li><a href="about.html" class="active">Tietoa</a></li>
       </ul>
     </nav>
@@ -21,17 +22,19 @@
   <main>
     <section>
       <h2>Projektin kuvaus</h2>
-      <p>Tämä on harjoitustyö, jossa hyödynnetään <a href="https://fakestoreapi.com/" target="_blank">FakeStore API:a</a>.</p>
+      <p>Tämä on selainohjelmoinnin kurssin harjoitustyö, jossa käytän <a href="https://fakestoreapi.com/" target="_blank">FakeStore API:a</a> tuomaan tuotteet ja ostoskorit näkyviin omalla sivustolla.</p>
+      <p>Sivustolla on neljä eri sivua, joissa jokaisella on oma tehtävänsä:</p>
       <ul>
-        <li><strong>index.html</strong> – näyttää ostoskorit API:sta.</li>
-        <li><strong>products.html</strong> – listaa kaikki tuotteet.</li>
-        <li><strong>about.html</strong> – kuvaus, validointi ja yhteyslomake.</li>
+        <li><strong>index.html</strong> – etusivu ja linkit muihin osioihin</li>
+        <li><strong>products.html</strong> – näyttää kaikki tuotteet API:sta</li>
+        <li><strong>carts.html</strong> – näyttää ostoskorit ja niiden sisällön</li>
+        <li><strong>about.html</strong> – tietoa projektista, validoinnista ja palautelomake</li>
       </ul>
     </section>
 
     <section>
       <h2>Validointi</h2>
-      <p>HTML- ja CSS-tiedostot on validoitu W3C-työkaluilla:</p>
+      <p>Kaikki HTML- ja CSS-tiedostot on tarkistettu ja validoitu W3C:n työkaluilla:</p>
       <ul>
         <li><a href="https://validator.w3.org/" target="_blank">HTML Validator</a></li>
         <li><a href="https://jigsaw.w3.org/css-validator/" target="_blank">CSS Validator</a></li>
@@ -40,6 +43,7 @@
 
     <section>
       <h2>Yhteyslomake (demo)</h2>
+      <p>Tämä lomake on demoversio, eikä se lähetä oikeaa sähköpostia. Se on mukana harjoitustyössä esimerkkinä lomakkeen toiminnasta.</p>
       <form id="contactForm">
         <label for="name">Nimi:</label>
         <input type="text" id="name" required>
