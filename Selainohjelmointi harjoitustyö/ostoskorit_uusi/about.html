@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tietoa – Ostoskorit & Tuotteet</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Tietoa projektista</h1>
+    <nav>
+      <ul class="nav">
+        <li><a href="index.html">Etusivu</a></li>
+        <li><a href="products.html">Tuotteet</a></li>
+        <li><a href="about.html" class="active">Tietoa</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Projektin kuvaus</h2>
+      <p>Tämä on harjoitustyö, jossa hyödynnetään <a href="https://fakestoreapi.com/" target="_blank">FakeStore API:a</a>.</p>
+      <ul>
+        <li><strong>index.html</strong> – näyttää ostoskorit API:sta.</li>
+        <li><strong>products.html</strong> – listaa kaikki tuotteet.</li>
+        <li><strong>about.html</strong> – kuvaus, validointi ja yhteyslomake.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Validointi</h2>
+      <p>HTML- ja CSS-tiedostot on validoitu W3C-työkaluilla:</p>
+      <ul>
+        <li><a href="https://validator.w3.org/" target="_blank">HTML Validator</a></li>
+        <li><a href="https://jigsaw.w3.org/css-validator/" target="_blank">CSS Validator</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Yhteyslomake (demo)</h2>
+      <form id="contactForm">
+        <label for="name">Nimi:</label>
+        <input type="text" id="name" required>
+        <label for="email">Sähköposti:</label>
+        <input type="email" id="email" required>
+        <label for="message">Viesti:</label>
+        <textarea id="message" rows="4" required></textarea>
+        <button type="submit">Lähetä</button>
+      </form>
+      <p id="formStatus"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Ostoskorit & Tuotteet – Harjoitustyö</p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

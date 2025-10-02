@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oma ostoskori</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Oma ostoskori</h1>
+    <nav>
+      <ul class="nav">
+        <li><a href="index.html">Etusivu</a></li>
+        <li><a href="products.html">Tuotteet</a></li>
+        <li><a href="carts.html" class="active">Ostoskori</a></li>
+        <li><a href="about.html">Tietoa</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Ostoskorin sisältö</h2>
+      <div id="cartContainer"></div>
+      <div id="cartTotal"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Ostoskorit & Tuotteet – Harjoitustyö</p>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $("#year").text(new Date().getFullYear());
+
+      const container = $("#cartContainer");
+      const totalEl = $("#cartTotal");
+      const cartKey = "ostoskorini";
+      let ostoskori = JSON.parse(localStorage.getItem(cartKey) || "[]");
+
+      function renderCart() {
+        container.empty();
+        if (!ostoskori.length) {
+          container.html("<p>Ostoskorisi on tyhjä.</p>");
+          totalEl.text("");
+          return;
+        }
+
+        let total = 0;
+        ostoskori.forEach(item => {
+          total += item.price * item.quantity;
+          container.append(`
+            <div class='cart'>
+              <img src='${item.image}' alt='${item.title}' style='width:80px;height:80px;object-fit:contain;float:left;margin-right:10px;'>
+              <h4>${item.title}</h4>
+              <p>Määrä: ${item.quantity}</p>
+              <p>Hinta: ${(item.price * item.quantity).toFixed(2)} €</p>
+              <button class='remove-btn' data-id='${item.id}'>Poista</button>
+              <div style='clear:both;'></div>
+            </div>
+          `);
+        });
+
+        totalEl.html(`<h3>Yhteensä: ${total.toFixed(2)} €</h3>`);
+
+        $(".remove-btn").off("click").on("click", function() {
+          const id = parseInt($(this).data("id"));
+          ostoskori = ostoskori.filter(item => item.id !== id);
+          localStorage.setItem(cartKey, JSON.stringify(ostoskori));
+          renderCart();
+        });
+      }
+
+      renderCart();
+    });
+  </script>
+</body>
+</html>
+
